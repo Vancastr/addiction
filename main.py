@@ -1,20 +1,34 @@
 import os
 import sys
 import json
-import datetime
+from datetime import date
 import argparse
 
 
-def create():
-    print("Create")
+def create_record(filename):
+    if not os.path.exists("records"):
+        os.mkdir("records")
+    if os.path.exists(f"records/{filename}.json"):
+        print(
+            "Record file for this addiction already exists. Use \"open\" option to edit it or create another file"
+        )
+        return
+    starter_date = date.today()
+    header = {"Starting day": str(starter_date)}
+    with open(f"records/{filename}.json", "w") as f:
+        json.dump(header, f)
     return
 
-def open():
+def open_record():
     print("Open")
     return
 
-def delete():
-    print("Delete")
+def delete_record(filename):
+    if os.path.exists(f"records/{filename}.json"):
+        os.remove(f"records/{filename}.json")
+        print("Record has been deleted successfully")
+    else:
+        print("Such record does not exist")
     return
 
 def main():
@@ -22,7 +36,7 @@ def main():
     parser.add_argument(
         "-c", "--create", 
         dest="create", 
-        help="Create new file about your addiction"
+        help="Create new addiction record"
         )
     parser.add_argument(
         "-o", "--open", 
@@ -45,11 +59,11 @@ def main():
         return
     
     if args.create:
-        create()
+        create_record(args.create)
     elif args.open:
-        open()
+        open_record()
     elif args.delete:
-        delete()
+        delete_record(args.delete)
     return
 
 if __name__ == "__main__":
