@@ -10,6 +10,17 @@ if platform.system() == "Windows":
 else:
     slash = "/"
 
+def show_menu():
+    print("----------Choose desired option----------")
+    print("1. Add a point to record")
+    print("2. Number of point during specific day")
+    print("3. Number of points last week")
+    print("4. Number of points last month")
+    print("5. Number of points last year")
+    print("6. Total number of points")
+    print("7. Exit")
+    return input("Enter the number of desired option(1-7):")
+
 def create_record(filename):
     if not os.path.exists("records"):
         os.mkdir("records")
@@ -24,8 +35,22 @@ def create_record(filename):
         json.dump(header, f)
     return
 
-def open_record():
-    print("Open")
+def open_record(record):
+    while True:
+        choice = show_menu()
+        if choice == "1":
+            with open(f"records{slash}{record}.json", "r") as f:
+                info = json.load(f)
+            current_date = date.today()
+            if info.get(str(current_date)) is None:
+                info[str(current_date)] = 1
+            else:
+                info[str(current_date)] += 1
+            with open(f"records{slash}{record}.json", "w") as f:
+                json.dump(info, f)
+        elif choice == "7":
+            print("Finishing the application...")
+            break
     return
 
 def delete_record(filename):
@@ -66,7 +91,7 @@ def main():
     if args.create:
         create_record(args.create)
     elif args.open:
-        open_record()
+        open_record(args.open)
     elif args.delete:
         delete_record(args.delete)
     return
