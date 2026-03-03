@@ -2,7 +2,7 @@ import os
 import sys
 import json
 import platform
-from datetime import date
+from datetime import date, timedelta
 import argparse
 
 if platform.system() == "Windows":
@@ -14,12 +14,18 @@ def show_menu():
     print("----------Choose desired option----------")
     print("1. Add a point to record")
     print("2. Number of point during specific day")
-    print("3. Number of points last week")
-    print("4. Number of points last month")
-    print("5. Number of points last year")
-    print("6. Total number of points")
+    print("3. Number of points this week")
+    print("4. Number of points this month")
+    print("5. Number of points this year")
+    print("6. Total number of points and starting day")
     print("7. Exit")
     return input("Enter the number of desired option(1-7):")
+
+def string_to_date(orig: str):
+    date_list = orig.split("-")
+    for i in range(len(date_list)):
+        date_list[i] = int(date_list[i])
+    return date(date_list[0], date_list[1], date_list[2])
 
 def create_record(filename):
     if not os.path.exists("records"):
@@ -30,7 +36,7 @@ def create_record(filename):
         )
         return
     starter_date = date.today()
-    header = {"Starting day": str(starter_date)}
+    header = {str(starter_date): 0}
     with open(f"records{slash}{filename}.json", "w") as f:
         json.dump(header, f)
     return
@@ -48,6 +54,63 @@ def open_record(record):
                 info[str(current_date)] += 1
             with open(f"records{slash}{record}.json", "w") as f:
                 json.dump(info, f)
+        elif choice == "2":
+            with open(f"records{slash}{record}.json", "r") as f:
+                info = json.load(f)
+            needed_date = input("Enter your wanted date using next format: \"1970-12-31\"   ")
+            date_info = info.get(needed_date)
+            if date_info is None:
+                print("Records do not contain such date. You either won that day or made a mistake right now. Try again just to be sure")
+            else:
+                print(f"Number of defeats during {needed_date}: {info[needed_date]}")
+            print("-----------------------------------------------")
+        elif choice == "3":
+            with open(f"records{slash}{record}.json", "r") as f:
+                info = json.load(f)
+            current_date = date.today()
+            start_of_week = current_date - timedelta(7)
+            defeats = 0
+            for key in info.keys():
+                day = string_to_date(key)
+                if day > start_of_week and day <= current_date:
+                    defeats += info[key]
+            print(f"Number of defeats this week: {defeats}")
+            print("-----------------------------------------------")
+        elif choice == "4":
+            with open(f"records{slash}{record}.json", "r") as f:
+                info = json.load(f)
+            current_date = date.today()
+            start_of_month = date(current_date.year, current_date.month, 1)
+            defeats = 0
+            for key in info.keys():
+                day = string_to_date(key)
+                if day > start_of_month and day <= current_date:
+                    defeats += info[key]
+            print(f"Number of defeats this month: {defeats}")
+            print("-----------------------------------------------")
+        elif choice == "5":
+            with open(f"records{slash}{record}.json", "r") as f:
+                info = json.load(f)
+            current_date = date.today()
+            start_of_year = date(current_date.year, 1, 1)
+            defeats = 0
+            for key in info.keys():
+                day = string_to_date(key)
+                if day > start_of_year and day <= current_date:
+                    defeats += info[key]
+            print(f"Number of defeats this year: {defeats}")
+            print("-----------------------------------------------")
+        elif choice == "6":
+            with open(f"records{slash}{record}.json", "r") as f:
+                info = json.load(f)
+            defeats = 0
+            days = list(info.keys())
+            start_day = min(days)
+            for key in info.keys():
+                defeats += info[key]
+            print(f"Total number of defeats: {defeats}")
+            print(f"Starting day: {start_day}")
+            print("-----------------------------------------------")
         elif choice == "7":
             print("Finishing the application...")
             break
