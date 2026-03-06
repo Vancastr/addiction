@@ -114,6 +114,9 @@ def open_record(record):
         elif choice == "7":
             print("Finishing the application...")
             break
+        else:
+            print("You've entered wrong number or symbol. Please choose again.")
+            print("-----------------------------------------------")
     return
 
 def delete_record(filename):
